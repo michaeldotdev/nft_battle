@@ -14,23 +14,10 @@ const main = async () => {
     "10000", // Boss HP
     "10" // Boss Damage
   );
+
   await gameContract.deployed();
-
   console.log("Contract deployed to address: ", gameContract.address)
-
-  let transaction;
-
-  transaction = await gameContract.mintChampionNFT(0);
-  await transaction.wait();
-  console.log("Minted NFT Champion #1")
-
-  transaction = await gameContract.attackBoss();
-  await transaction.wait();
-
-  transaction = await gameContract.attackBoss();
-  await transaction.wait();
-
-  console.log("Done!")
+  
 };
 
 const runMain = async () => {
