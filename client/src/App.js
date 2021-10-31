@@ -6,6 +6,7 @@ import { ethers } from 'ethers';
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
 import SelectCharacter from './Components/SelectCharacter';
+import Arena from './Components/Arena';
 
 // Constants
 const TWITTER_HANDLE = '_buildspace';
@@ -46,18 +47,21 @@ const App = () => {
     if (!currentAccount) {
       return (
         <div className="connect-wallet-container">
-        <button
-          className="cta-button connect-wallet-button"
-          onClick={connectWalletAction}
-        >
-          Connect Wallet To Get Started
-        </button>
-      </div>
-    );
-  } else if (currentAccount && !characterNFT) {
-    return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
-  }
+          <button
+            className="cta-button connect-wallet-button"
+            onClick={connectWalletAction}
+          >
+            Connect Wallet To Get Started
+          </button>
+        </div>
+      );
+    } else if (currentAccount && !characterNFT) {
+      return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
+      
+    } else if (currentAccount && characterNFT) {
+      return <Arena characterNFT={characterNFT} />;
     }
+  }
   
     const connectWalletAction = async () => {
       try {
