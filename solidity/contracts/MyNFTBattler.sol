@@ -29,12 +29,34 @@ contract MyNFTBattler is ERC721 {
     mapping(uint256 => CharacterAttributes) public nftHolderAttributes;
     mapping(address => uint256) public nftHolders;
 
+    struct BigBoss {
+        string name;
+        string imageURI;
+        uint256 currentHP;
+        uint256 maxHP;
+        uint256 attackDamage;
+    }
+
+    BigBoss public bigBoss;
+
     constructor(
         string[] memory characterNames,
         string[] memory characterImageURIs,
         uint256[] memory characterCurrentHP,
-        uint256[] memory characterAttackDamage
+        uint256[] memory characterAttackDamage,
+        string memory bossName,
+        string memory bossImageURI,
+        uint256 bossHP,
+        uint256 bossAttackDamage
     ) ERC721("Champions", "CHAMP") {
+        bigBoss = BigBoss({
+            name: bossName,
+            imageURI: bossImageURI,
+            currentHP: bossHP,
+            maxHP: bossHP,
+            attackDamage: bossAttackDamage
+        });
+
         for (uint256 i = 0; i < characterNames.length; i += 1) {
             defaultCharacters.push(
                 CharacterAttributes({
@@ -130,5 +152,55 @@ contract MyNFTBattler is ERC721 {
         );
 
         return output;
+    }
+
+    function attackBoss() public {
+        uint256 nftTokenIdOfPlayer = nftHolders[msg.sender];
+        CharacterAttributes storage player = nftHolderAttributes[
+            nftTokenIdOfPlayer
+        ];
+
+        console.log(
+            "\nPlayer w/ character %s about to attack. Has %s HP and %s AD",
+            player.name,
+            player.currentHP,
+            player.attackDamage
+        );
+        console.log(
+            "Boss %s has %s HP and %s AD",
+            bigBoss.name,
+            bigBoss.currentHP,
+            bigBoss.attackDamage
+        );
+
+        require(
+            player.currentHP > 0,
+            "Error: character must have HP to attack boss."
+        );
+
+        require(
+            bigBoss.currentHP > 0,
+            "Error: boss must have HP to attack boss."
+        );
+
+        // Allow player to attack boss.
+        if (bigBoss.currentHP < player.attackDamage) {
+            bigBoss.currentHP = 0;
+        } else {
+            bigBoss.currentHP = bigBoss.currentHP - player.attackDamage;
+        }
+
+        // Allow boss to attack player.
+        if (player.currentHP < bigBoss.attackDamage) {
+            player.currentHP = 0;
+        } else {
+            player.currentHP = player.currentHP - bigBoss.attackDamage;
+        }
+
+        // Console for ease.
+        console.log(
+            "Boss attacked player. New player hp: %s\n",
+            player.currentHP
+        );
     }
 }

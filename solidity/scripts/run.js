@@ -8,7 +8,11 @@ const main = async () => {
       "http://ddragon.leagueoflegends.com/cdn/11.21.1/img/champion/Akali.png"
     ], // Images
     [150, 200, 100], // HP Value
-    [75, 50, 125] // Attack Damage
+    [75, 50, 125], // Attack Damage
+    "Christmas Poro", // Boss Name
+    "http://ddragon.leagueoflegends.com/cdn/11.21.1/img/profileicon/588.png", // Boss Image
+    "10000", // Boss HP
+    "10" // Boss Damage
   );
   await gameContract.deployed();
 
@@ -19,8 +23,11 @@ const main = async () => {
   transaction = await gameContract.mintChampionNFT(2);
   await transaction.wait();
 
-  let returnTokenUri = await gameContract.tokenURI(1);
-  console.log("Token URI:", returnTokenUri);
+  transaction = await gameContract.attackBoss();
+  await transaction.wait();
+
+  transaction = await gameContract.attackBoss();
+  await transaction.wait();
 };
 
 const runMain = async () => {
