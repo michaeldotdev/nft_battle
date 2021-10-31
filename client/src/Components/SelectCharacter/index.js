@@ -4,12 +4,16 @@ import { ethers } from 'ethers';
 import { CONTRACT_ADDRESS, transformCharacterData } from '../../constants';
 import myNFTBattler from '../../utils/MyNFTBattler.json';
 
+import LoadingIndicator from '../LoadingIndicator';
+
 /*
  * Don't worry about setCharacterNFT just yet, we will talk about it soon!
  */
 const SelectCharacter = ({ setCharacterNFT }) => {
   const [characters, setCharacters] = useState([]);
   const [gameContract, setGameContract] = useState(null);
+
+  const [mintingChampion, setMintingChampion] = useState(false);
 
   const mintCharacterNFTAction = (characterId) => async () => {
     try {
@@ -18,9 +22,12 @@ const SelectCharacter = ({ setCharacterNFT }) => {
         const mintTxn = await gameContract.mintChampionNFT(characterId);
         await mintTxn.wait();
         console.log('mintTxn:', mintTxn);
+
+        setMintingChampion(false)
       }
     } catch (error) {
       console.warn('MintCharacterAction Error:', error);
+      setMintingChampion(false)
     }
   };
 
@@ -107,6 +114,19 @@ const SelectCharacter = ({ setCharacterNFT }) => {
       <h2>Mint Your Champion. Choose wisely.</h2>
       {characters.length > 0 && (
       <div className="character-grid">{renderCharacters()}</div>
+      )}
+      
+      {mintingChampion && (
+      <div className="loading">
+        <div className="indicator">
+          <LoadingIndicator />
+          <p>Minting In Progress...</p>
+        </div>
+        <img
+          src="https://media2.giphy.com/media/61tYloUgq1eOk/giphy.gif?cid=ecf05e47dg95zbpabxhmhaksvoy8h526f96k4em0ndvx078s&rid=giphy.gif&ct=g"
+          alt="Minting loading indicator"
+        />
+      </div>
     )}
     </div>
   );

@@ -7,6 +7,7 @@ import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
 import SelectCharacter from './Components/SelectCharacter';
 import Arena from './Components/Arena';
+import LoadingIndicator from './Components/LoadingIndicator'
 
 // Constants
 const TWITTER_HANDLE = '_buildspace';
@@ -17,7 +18,8 @@ const App = () => {
   const [currentAccount, setCurrentAccount] = useState(null);
   const [characterNFT, setCharacterNFT] = useState(null)
 
-    // Actions
+  const [isLoading, setIsLoading] = useState(false)
+
     const checkIfWalletIsConnected = async () => {
       try {
         const { ethereum } = window;
@@ -44,6 +46,8 @@ const App = () => {
     };
   
   const renderContent = () => {
+    if(isLoading) return <LoadingIndicator />
+
     if (!currentAccount) {
       return (
         <div className="connect-wallet-container">
@@ -83,7 +87,8 @@ const App = () => {
       }
     };
   
-    useEffect(() => {
+  useEffect(() => {
+      setIsLoading(true)
       checkIfWalletIsConnected();
     }, []);
   
@@ -106,6 +111,7 @@ const App = () => {
         } else {
           console.log('No character NFT found');
         }
+        setIsLoading(false)
       };
     
       if (currentAccount) {
