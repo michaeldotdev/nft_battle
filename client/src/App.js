@@ -1,13 +1,20 @@
-import React, {useState, useEffect} from 'react';
+import { CONTRACT_ADDRESS, transformCharacterData } from './constants';
+import myNFTBattler from './utils/MyNFTBattler.json'
+
+import React, { useState, useEffect } from 'react';
+import { ethers } from 'ethers';
 import twitterLogo from './assets/twitter-logo.svg';
 import './App.css';
+import SelectCharacter from './Components/SelectCharacter';
 
 // Constants
 const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
+
 const App = () => {
-    const [currentAccount, setCurrentAccount] = useState(null);
+  const [currentAccount, setCurrentAccount] = useState(null);
+  const [characterNFT, setCharacterNFT] = useState(null)
 
     // Actions
     const checkIfWalletIsConnected = async () => {
@@ -35,6 +42,23 @@ const App = () => {
       }
     };
   
+  const renderContent = () => {
+    if (!currentAccount) {
+      return (
+        <div className="connect-wallet-container">
+        <button
+          className="cta-button connect-wallet-button"
+          onClick={connectWalletAction}
+        >
+          Connect Wallet To Get Started
+        </button>
+      </div>
+    );
+  } else if (currentAccount && !characterNFT) {
+    return <SelectCharacter setCharacterNFT={setCharacterNFT} />;
+  }
+    }
+  
     const connectWalletAction = async () => {
       try {
         const { ethereum } = window;
@@ -58,6 +82,33 @@ const App = () => {
     useEffect(() => {
       checkIfWalletIsConnected();
     }, []);
+  
+    useEffect(() => {
+      const fetchNFTMetadata = async () => {
+        console.log('Checking for Character NFT on address:', currentAccount);
+    
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const gameContract = new ethers.Contract(
+          CONTRACT_ADDRESS,
+          myNFTBattler.abi,
+          signer
+        );
+    
+        const txn = await gameContract.checkIfUserHasNFT();
+        if (txn.name) {
+          console.log('User has character NFT');
+          setCharacterNFT(transformCharacterData(txn));
+        } else {
+          console.log('No character NFT found');
+        }
+      };
+    
+      if (currentAccount) {
+        console.log('CurrentAccount:', currentAccount);
+        fetchNFTMetadata();
+      }
+    }, [currentAccount]);
 
 
 
@@ -70,12 +121,7 @@ const App = () => {
           <p className="sub-text">Use with Testnet only!</p>
           <p className="sub-text">Images are from Riot Games</p>
           <div className="connect-wallet-container">
-          <button
-              className="cta-button connect-wallet-button"
-              onClick={connectWalletAction}
-            >
-              Connect Wallet To Get Started
-            </button>
+            {renderContent()}
           </div>
         </div>
         <div className="footer-container">
